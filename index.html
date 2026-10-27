@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فاتورتي - Enterprise Cloud Edition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+    body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 pb-12">
+
+  <!-- Enterprise Header (Secret Long Press Trigger on Logo for Mobile) -->
+  <header class="bg-slate-900 text-white shadow-xl sticky top-0 z-40 border-b border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
+      <div onmousedown="startAdminLongPress()" onmouseup="cancelAdminLongPress()" ontouchstart="startAdminLongPress()" ontouchend="cancelAdminLongPress()" class="flex items-center space-x-2 space-x-reverse cursor-pointer select-none">
+        <i class="fa-solid fa-shield-halved text-2xl text-amber-400"></i>
+        <h1 class="text-xl font-black tracking-wide">فاتورتي <span class="text-[10px] font-bold bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full">Enterprise</span></h1>
+      </div>
+      <span class="text-[11px] text-slate-400 font-medium">منصة المتاجر السحابية المعتمدة</span>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 mt-6">
+
+    <!-- Paywall Cloud Screen -->
+    <div id="paywall" class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 mb-6 border border-slate-200 text-center relative overflow-hidden">
+      <div class="w-20 h-20 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+      </div>
+      
+      <h2 class="text-2xl md:text-3xl font-black text-slate-800 mb-2">منصة فاتورتي السحابية للمتاجر</h2>
+      <p class="text-slate-600 text-sm max-w-md mx-auto mb-6">
+        قم بتفعيل رخصة عملك الاحترافية لإصدار وإدارة الفواتير المعتمدة بـ <span class="font-bold text-indigo-600 text-base">50 جنيه فقط شهرياً</span>.
+      </p>
+
+      <div class="bg-slate-50 rounded-2xl p-5 mb-6 text-right max-w-lg mx-auto border border-slate-200 shadow-sm">
+        <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center">
+          <i class="fa-solid fa-wallet text-indigo-600 ml-2 text-lg"></i> تعليمات السداد الفوري:
+        </h3>
+        <ol class="text-xs text-slate-700 space-y-2 list-decimal list-inside pr-1">
+          <li>تحويل قيمة الاشتراك عبر فودافون كاش إلى الرقم المعتمد:</li>
+          <li class="list-none my-2 bg-white p-3 rounded-xl text-center border-2 border-slate-300 font-mono text-xl font-bold text-slate-800 tracking-wider shadow-sm flex justify-between items-center px-4">
+            <span>01004613930</span>
+            <button onclick="navigator.clipboard.writeText('01004613930'); alert('تم نسخ الرقم بنجاح!');" class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border hover:bg-slate-200">نسخ</button>
+          </li>
+          <li>ارفع سكرين الإيصال واضغط إرسال للإدارة عبر الواتساب لاستلام كود التفعيل الخاص بك.</li>
+        </ol>
+      </div>
+
+      <div class="max-w-lg mx-auto space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-right">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">اسم النشاط / المطعم</label>
+            <input type="text" id="subShopName" placeholder="مثال: مطعم شلتت" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-slate-900">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف المسدد منه</label>
+            <input type="tel" id="subPhone" placeholder="01x xxx xxx xx" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-slate-900">
+          </div>
+        </div>
+
+        <div class="text-right bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+          <label class="block text-xs font-bold text-indigo-900 mb-1">
+            <i class="fa-solid fa-image ml-1"></i> اختيار سكرين شوت إيصال التحويل <span class="text-red-500">*</span>
+          </label>
+          <input type="file" id="receiptImage" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
+        </div>
+
+        <button onclick="sendRequestDirectToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-lg transition flex items-center justify-center gap-2">
+          <i class="fa-brands fa-whatsapp text-lg"></i> إرسال تفاصيل الإيصال للواتساب واستلام الكود
+        </button>
+
+        <div class="relative my-4">
+          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div>
+          <div class="relative flex justify-center text-xs"><span class="bg-white px-3 text-slate-400 font-medium">أو إدخال كود التفعيل للدخول من أي موبايل</span></div>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="activationCodeInput" placeholder="أدخل كود الترخيص (مثال: FAT-...)" class="flex-1 px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl text-center font-mono tracking-widest uppercase focus:ring-2 focus:ring-slate-900">
+          <button onclick="activateWithCode()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 text-sm rounded-xl shadow-md transition">
+            تنشيط ودخول
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-400">للتجربة السريعة، استخدم الكود الافتراضي: <span class="font-mono text-slate-700 font-bold">DEMO-30DAYS</span></p>
+      </div>
+    </div>
+    <!-- Active Enterprise App Container -->
+    <div id="appBody" class="hidden space-y-6">
+      
+      <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-3xl p-6 shadow-xl border border-slate-800 space-y-4">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <div>
+            <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">حالة النظام: نشط ومؤمن</span>
+            <h3 id="activeShopTitle" class="text-2xl font-black mt-2">اسم المطعم</h3>
+          </div>
+          <div class="bg-emerald-500/10 text-emerald-400 text-xs px-3 py-1.5 rounded-xl border border-emerald-500/20 flex items-center gap-1.5 font-bold">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> العداد شغال بدقة
+          </div>
+        </div>
+
+        <div class="border-t border-slate-800 pt-4">
+          <p class="text-xs text-slate-300 mb-3 font-semibold">المدة المتبقية في الرخصة:</p>
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
+              <span id="cdSeconds" class="font-mono text-xl md:text-2xl font-black text-amber-400 block">00</span>
+              <span class="text-[10px] text-slate-400 mt-1 block">ثواني</span>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
+              <span id="cdMinutes" class="font-mono text-xl md:text-2xl font-black text-amber-400 block">00</span>
+              <span class="text-[10px] text-slate-400 mt-1 block">دقايب</span>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
+              <span id="cdHours" class="font-mono text-xl md:text-2xl font-black text-amber-400 block">00</span>
+              <span class="text-[10px] text-slate-400 mt-1 block">ساعات</span>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-3">
+              <span id="cdDays" class="font-mono text-xl md:text-2xl font-black text-amber-400 block">00</span>
+              <span class="text-[10px] text-slate-400 mt-1 block">أيام</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modern POS Generator -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+          <h3 class="font-bold text-slate-800 mb-4 flex items-center text-base">
+            <i class="fa-solid fa-file-invoice text-indigo-600 ml-2"></i> إصدار فاتورة ضريبية جديدة
+          </h3>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">اسم العميل</label>
+              <input type="text" id="clientName" placeholder="اسم العميل الكريم" class="w-full px-3.5 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div id="itemsContainer" class="space-y-3">
+              <label class="block text-xs font-bold text-slate-700">بنود المنتجات / الوجبات:</label>
+              <div class="item-row grid grid-cols-12 gap-2">
+                <input type="text" placeholder="اسم الصنف" class="col-span-7 item-name px-3 py-2 text-xs border rounded-xl">
+                <input type="number" placeholder="السعر" class="col-span-4 item-price px-3 py-2 text-xs border rounded-xl">
+                <button onclick="removeItemRow(this)" class="col-span-1 text-slate-300 hover:text-red-500 font-bold">&times;</button>
+              </div>
+            </div>
+
+            <button onclick="addItemRow()" class="text-xs text-indigo-600 font-bold hover:underline flex items-center gap-1">
+              <i class="fa-solid fa-circle-plus"></i> إضافة صنف آخر للفاتورة
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">مصاريف التوصيل (ج.م)</label>
+                <input type="number" id="deliveryFee" value="50" class="w-full px-3.5 py-2 text-sm border rounded-xl">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">رقم التحويل / المحفظة (اختياري)</label>
+                <input type="text" id="payNumber" placeholder="01004613930" class="w-full px-3.5 py-2 text-sm border rounded-xl">
+              </div>
+            </div>
+
+            <button onclick="generateAndSaveInvoice()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-print"></i> إصدار وحفظ الفاتورة الرسمية
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-slate-800 mb-4 flex items-center text-base">
+              <i class="fa-solid fa-eye text-indigo-600 ml-2"></i> معاينة وثيقة الفاتورة
+            </h3>
+            
+            <div id="invoicePrintArea" class="bg-slate-50 border-2 border-dashed border-slate-300 p-5 rounded-2xl text-center">
+              <p class="text-xs text-slate-400 py-10">قم بتعبئة عناصر الفاتورة بالأسفل واضغط إصدار</p>
+            </div>
+          </div>
+
+          <button id="downloadBtn" onclick="downloadInvoiceImage()" class="hidden w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-image"></i> تنزيل الفاتورة كصورة عالية الدقة (PNG)
+          </button>
+        </div>
+      </div>
+      <!-- Enterprise Audit Logs -->
+      <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+          <h3 class="font-bold text-slate-800 flex items-center text-base">
+            <i class="fa-solid fa-chart-pie text-indigo-600 ml-2"></i> سجل العمليات والمبيعات اليومية
+          </h3>
+          <button onclick="clearAllLogs()" class="text-xs text-red-500 hover:text-red-700 font-semibold">تفريغ السجل</button>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+            <span class="text-[11px] text-slate-500 block">إجمالي الفواتير</span>
+            <span id="statTotalInvoices" class="font-black text-slate-900 text-lg">0</span>
+          </div>
+          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center">
+            <span class="text-[11px] text-slate-500 block">إيرادات المنتجات</span>
+            <span id="statTotalSales" class="font-black text-emerald-700 text-lg">0 ج.م</span>
+          </div>
+          <div class="bg-amber-50 p-3 rounded-xl border border-amber-100 text-center">
+            <span class="text-[11px] text-slate-500 block">رسوم التوصيل</span>
+            <span id="statTotalDelivery" class="font-black text-amber-700 text-lg">0 ج.م</span>
+          </div>
+          <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-center">
+            <span class="text-[11px] text-slate-500 block">صافي العائد الكلي</span>
+            <span id="statGrandTotal" class="font-black text-indigo-700 text-lg">0 ج.م</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-right text-xs">
+            <thead class="bg-slate-100 text-slate-700 font-bold border-b">
+              <tr>
+                <th class="p-2.5">التاريخ والوقت</th>
+                <th class="p-2.5">العميل</th>
+                <th class="p-2.5">البنود</th>
+                <th class="p-2.5">المبلغ</th>
+                <th class="p-2.5">التوصيل</th>
+                <th class="p-2.5">الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody id="invoiceLogTable" class="divide-y divide-slate-100">
+              <tr><td colspan="6" class="text-center py-4 text-slate-400">لا توجد عمليات مسجلة سحابياً</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Admin PIN Code Modal (Clean & Hidden Password Policy) -->
+  <div id="adminPinModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-right border border-slate-200 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-lock text-indigo-600"></i> إدخال كلمة سر الأدمن
+        </h3>
+        <button onclick="closeAdminPinModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">كلمة السر (17 رقماً)</label>
+        <input type="password" id="adminPinInput" maxlength="17" placeholder="أدخل 17 رقماً سرياً" class="w-full px-3 py-2 text-sm border rounded-xl text-center font-mono tracking-widest focus:ring-2 focus:ring-slate-900">
+      </div>
+      <button onclick="verifyAdminPin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm shadow transition">
+        دخول لوحة التحكم
+      </button>
+    </div>
+  </div>
+
+  <!-- Master Enterprise Admin Dashboard Modal -->
+  <div id="adminModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full p-6 text-right max-h-[90vh] overflow-y-auto border border-slate-200">
+      <div class="flex justify-between items-center mb-4 border-b pb-3">
+        <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
+          <i class="fa-solid fa-server text-indigo-600"></i> لوحة التحكم المركزية وإدارة المشتركين
+        </h3>
+        <button onclick="toggleAdminModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      </div>
+
+      <div class="space-y-5">
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-[10px] text-slate-500 block">إجمالي المشتركين</span>
+            <span id="adminTotalUsers" class="font-black text-slate-900 text-base">0</span>
+          </div>
+          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+            <span class="text-[10px] text-slate-500 block">المشتركين النشطين</span>
+            <span id="adminActiveUsers" class="font-black text-emerald-700 text-base">0</span>
+          </div>
+          <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+            <span class="text-[10px] text-slate-500 block">إجمالي الأرباح المقدرة</span>
+            <span id="adminEarnings" class="font-black text-indigo-700 text-base">0 ج.م</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+          <h4 class="font-bold text-xs text-slate-900 flex items-center justify-between">
+            <span>قائمة المشتركين (وقت الاشتراك والتحكم الكامل):</span>
+            <span class="text-[10px] text-indigo-600 font-normal">إدارة الحسابات</span>
+          </h4>
+          <div class="overflow-x-auto max-h-48 overflow-y-auto bg-white rounded-xl border">
+            <table class="w-full text-right text-xs">
+              <thead class="bg-slate-100 text-slate-700 font-bold border-b sticky top-0">
+                <tr>
+                  <th class="p-2">المطعم والهاتف</th>
+                  <th class="p-2">وقت الاشتراك</th>
+                  <th class="p-2">الحالة</th>
+                  <th class="p-2">التحكم (تمديد / إنهاء)</th>
+                </tr>
+              </thead>
+              <tbody id="subscribersTableBody" class="divide-y">
+                <tr><td colspan="4" class="text-center py-3 text-slate-400">لا توجد اشتراكات مسجلة بعد</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 space-y-3">
+          <h4 class="font-bold text-xs text-indigo-900">إصدار كود تفعيل سحابي جديد (يعمل من أي موبايل):</h4>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">اسم النشاط التجاري</label>
+              <input type="text" id="adminClientName" placeholder="اسم المطعم" class="w-full px-3 py-2 text-xs border rounded-lg">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">رقم هاتف العميل</label>
+              <input type="tel" id="adminClientPhone" placeholder="01xxxxxxxxx" class="w-full px-3 py-2 text-xs border rounded-lg">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">اختر مدة الباقة:</label>
+            <select id="adminDuration" class="w-full px-3 py-2 text-xs border rounded-lg">
+              <option value="30">باقة شهر (30 يوم) - 50 جنيه</option>
+              <option value="60">عرض شهرين (60 يوم) - 90 جنيه</option>
+              <option value="365">عرض السنة الكاملة (365 يوم) - 500 جنيه</option>
+            </select>
+          </div>
+
+          <button onclick="generateNewCodeMaster()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 rounded-xl text-xs shadow">
+            إصدار الكود السحابي
+          </button>
+        </div>
+
+        <div id="generatedCodeArea" class="hidden bg-emerald-50 border-2 border-emerald-200 p-4 rounded-2xl text-center space-y-2">
+          <p class="text-xs text-emerald-800 font-bold">كود الترخيص الصادر (أرسله للعميل):</p>
+          <p id="newCodeDisplay" class="font-mono text-xl font-black text-emerald-900 tracking-wider select-all bg-white py-1.5 rounded-lg border"></p>
+          
+          <button onclick="sendCodeViaWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs shadow flex items-center justify-center gap-1">
+            <i class="fa-brands fa-whatsapp text-sm"></i> إرسال الكود للعميل عبر الواتساب
+          </button>
+        </div>
+
+        <div class="flex justify-between items-center pt-2 border-t">
+          <button onclick="resetSubscription()" class="text-xs text-red-600 hover:text-red-800 font-bold underline">
+            تسجيل الخروج من الحساب الحالي
+          </button>
+          <button onclick="resetSystemCompletely()" class="text-xs text-slate-400 hover:text-red-600 font-semibold">
+            تصفير النظام بالكامل
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let timerInterval = null;
+    let currentCodeData = null;
+    
+    // Secret Long Press Trigger on Header Logo (Optimized for Mobile: Hold for 2 seconds)
+    let longPressTimer = null;
+
+    function startAdminLongPress() {
+      longPressTimer = setTimeout(() => {
+        openAdminPinModal();
+      }, 2000); // Hold for 2 seconds
+    }
+
+    function cancelAdminLongPress() {
+      clearTimeout(longPressTimer);
+    }
+
+    function getDB() {
+      const defaultDB = {
+        expiry: null,
+        shopName: '',
+        phone: '',
+        activeCode: '',
+        codesCount: 0,
+        logs: [],
+        subscribers: [],
+        licenses: {},
+        adminPin: '01004613930156324' // 17-digit exact admin password (Hidden securely)
+      };
+      try {
+        const data = localStorage.getItem('fatoorty_enterprise_db');
+        return data ? JSON.parse(data) : defaultDB;
+      } catch(e) {
+        return defaultDB;
+      }
+    }
+
+    function saveDB(db) {
+      localStorage.setItem('fatoorty_enterprise_db', JSON.stringify(db));
+    }
+
+    window.onload = function() {
+      checkSubscription();
+      loadInvoiceLogs();
+    };
+
+    function checkSubscription() {
+      const db = getDB();
+      
+      if (db.expiry && Date.now() < db.expiry) {
+        document.getElementById('paywall').classList.add('hidden');
+        document.getElementById('appBody').classList.remove('hidden');
+        document.getElementById('activeShopTitle').innerText = db.shopName || 'متجري المعتمد';
+        startCountdown(db.expiry);
+      } else {
+        document.getElementById('paywall').classList.remove('hidden');
+        document.getElementById('appBody').classList.add('hidden');
+      }
+    }
+
+    // Admin PIN Modal Handlers
+    function openAdminPinModal() {
+      document.getElementById('adminPinInput').value = '';
+      document.getElementById('adminPinModal').classList.remove('hidden');
+    }
+
+    function closeAdminPinModal() {
+      document.getElementById('adminPinModal').classList.add('hidden');
+    }
+
+    function verifyAdminPin() {
+      const enteredPin = document.getElementById('adminPinInput').value.trim();
+      const db = getDB();
+      const correctPin = db.adminPin || '01004613930156324';
+
+      if (enteredPin === correctPin) {
+        closeAdminPinModal();
+        toggleAdminModal();
+      } else {
+        alert('كلمة السر غير صحيحة! تأكد من إدخال الـ 17 رقماً بدقة.');
+      }
+    }
+
+    function toggleAdminModal() {
+      const modal = document.getElementById('adminModal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        updateAdminDashboard();
+      }
+    }
+
+    function resetSubscription() {
+      if (confirm('هل تريد إلغاء تنشيط الحساب الحالي والعودة لشاشة التفعيل؟')) {
+        let db = getDB();
+        db.expiry = null;
+        db.shopName = '';
+        saveDB(db);
+        location.reload();
+      }
+    }
+
+    function resetSystemCompletely() {
+      if (confirm('هل تريد تصفير النظام بالكامل وإعادة ضبط كافة المشتركين؟')) {
+        localStorage.removeItem('fatoorty_enterprise_db');
+        alert('تم تصفير النظام بنجاح.');
+        location.reload();
+      }
+    }
+
+    function sendRequestDirectToWhatsApp() {
+      const shop = document.getElementById('subShopName').value.trim();
+      const phone = document.getElementById('subPhone').value.trim();
+      const fileInput = document.getElementById('receiptImage');
+
+      if (!shop || !phone) {
+        alert('يرجى إدخال اسم المطعم ورقم الهاتف المسدد منه أولاً');
+        return;
+      }
+
+      if (fileInput.files.length === 0) {
+        alert('يرجى اختيار سكرين شوت (صورة إيصال التحويل) أولاً!');
+        return;
+      }
+
+      const adminPhone = "201004613930";
+      const message = `مرحباً يا أدمن، قمت بتحويل اشتراك منصة فاتورتي.%0A📌 اسم المطعم: ${encodeURIComponent(shop)}%0A📱 رقم الهاتف: ${encodeURIComponent(phone)}%0A(لقد جهزت سكرين شوت الإيصال وسأرسله لك الآن في هذه المحادثة للحصول على كود التفعيل).`;
+      
+      window.open(`https://wa.me/${adminPhone}?text=${message}`, '_blank');
+    }
+
+    function activateWithCode() {
+      const code = document.getElementById('activationCodeInput').value.trim().toUpperCase();
+
+      if (code === 'DEMO-30DAYS') {
+        let db = getDB();
+        const expiryTime = Date.now() + (30 * 24 * 60 * 60 * 1000);
+        db.expiry = expiryTime;
+        db.shopName = 'مطعـم التجربة النموذجي';
+        db.phone = '01000000000';
+        db.activeCode = 'DEMO-30DAYS';
+        
+        if (!db.subscribers.find(s => s.shop === db.shopName)) {
+          db.subscribers.push({
+            id: Date.now(),
+            shop: db.shopName,
+            phone: db.phone,
+            expiry: expiryTime,
+            joinDate: new Date().toLocaleString('ar-EG'),
+            status: 'نشط',
+            code: 'DEMO-30DAYS'
+          });
+        }
+        saveDB(db);
+        alert('تم تنشيط حساب التجربة بنجاح تام على هذا الجهاز!');
+        checkSubscription();
+        return;
+      }
+
+      let db = getDB();
+      if (db.licenses && db.licenses[code]) {
+        const lic = db.licenses[code];
+        if (Date.now() > lic.expiry) {
+          alert('عذراً، هذا الكود منتهي الصلاحية. يرجى تجديد الاشتراك.');
+          return;
+        }
+
+        db.expiry = lic.expiry;
+        db.shopName = lic.shopName;
+        db.phone = lic.phone;
+        db.activeCode = code;
+        saveDB(db);
+
+        alert(`تم تفعيل حساب "${lic.shopName}" بنجاح على هذا الجهاز!`);
+        checkSubscription();
+      } else {
+        alert('كود التفعيل غير صالح أو غير مسجل في النظام.');
+      }
+    }
+
+    function startCountdown(expiryMs) {
+      if (timerInterval) clearInterval(timerInterval);
+
+      const updateClock = () => {
+        const now = Date.now();
+        const distance = expiryMs - now;
+
+        if (distance <= 0) {
+          clearInterval(timerInterval);
+          let db = getDB();
+          db.expiry = null;
+          saveDB(db);
+          alert('انتهت صلاحية الرخصة السحابية. يرجى تجديد الاشتراك.');
+          checkSubscription();
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        const dEl = document.getElementById('cdDays');
+        const hEl = document.getElementById('cdHours');
+        const mEl = document.getElementById('cdMinutes');
+        const sEl = document.getElementById('cdSeconds');
+
+        if (dEl) dEl.innerText = days;
+        if (hEl) hEl.innerText = hours.toString().padStart(2, '0');
+        if (mEl) mEl.innerText = minutes.toString().padStart(2, '0');
+        if (sEl) sEl.innerText = seconds.toString().padStart(2, '0');
+      };
+
+      updateClock();
+      timerInterval = setInterval(updateClock, 1000);
+    }
+
+    function addItemRow() {
+      const container = document.getElementById('itemsContainer');
+      const div = document.createElement('div');
+      div.className = 'item-row grid grid-cols-12 gap-2';
+      div.innerHTML = `
+        <input type="text" placeholder="اسم الصنف" class="col-span-7 item-name px-3 py-2 text-xs border rounded-xl">
+        <input type="number" placeholder="السعر" class="col-span-4 item-price px-3 py-2 text-xs border rounded-xl">
+        <button onclick="removeItemRow(this)" class="col-span-1 text-slate-300 hover:text-red-500 font-bold">&times;</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function removeItemRow(btn) {
+      const rows = document.querySelectorAll('.item-row');
+      if (rows.length > 1) {
+        btn.closest('.item-row').remove();
+      }
+    }
+
+    function generateAndSaveInvoice() {
+      const client = document.getElementById('clientName').value.trim() || 'عميل نقدي';
+      const delivery = parseFloat(document.getElementById('deliveryFee').value) || 0;
+      const payNum = document.getElementById('payNumber').value.trim();
+      const db = getDB();
+      const shop = db.shopName || 'متجري الرقمي';
+      const now = new Date();
+      const timeStr = now.toLocaleDateString('ar-EG') + ' - ' + now.toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'});
+
+      const itemRows = document.querySelectorAll('.item-row');
+      let itemsListHTML = '';
+      let itemsSummaryText = [];
+      let totalSales = 0;
+
+      itemRows.forEach(row => {
+        const name = row.querySelector('.item-name').value.trim() || 'صنف قياسي';
+        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+        totalSales += price;
+        itemsSummaryText.push(`${name} (${price}ج)`);
+        itemsListHTML += `<div class="flex justify-between"><span>${name}:</span> <span class="font-semibold">${price} ج.م</span></div>`;
+      });
+
+      const grandTotal = totalSales + delivery;
+
+      const invoiceHTML = `
+        <div id="invoiceToCapture" class="bg-white p-5 rounded-xl border border-slate-300 text-right shadow-sm font-sans">
+          <div class="border-b pb-3 mb-3 flex justify-between items-center">
+            <div>
+              <h4 class="font-black text-slate-900 text-lg">${shop}</h4>
+              <p class="text-[10px] text-slate-400">وثيقة فاتورة مبيعات إلكترونية</p>
+            </div>
+            <span class="text-[10px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-mono">${timeStr}</span>
+          </div>
+          <p class="text-xs text-slate-700 mb-3 font-semibold">المطلوب من السيد/ة: <span class="text-slate-900 font-bold">${client}</span></p>
+          <div class="bg-slate-50 p-3 rounded-xl text-xs space-y-2 mb-3 border border-slate-200">
+            ${itemsListHTML}
+            <div class="flex justify-between text-slate-500 border-t pt-2"><span>مصاريف التوصيل:</span> <span>${delivery} ج.م</span></div>
+            <div class="flex justify-between font-black border-t pt-2 text-slate-900 text-sm"><span>الإجمالي الصافي:</span> <span>${grandTotal} ج.م</span></div>
+          </div>
+          ${payNum ? `<p class="text-[11px] text-indigo-700 font-bold text-center bg-indigo-50 p-1.5 rounded-lg mb-2 border border-indigo-100">رقم تحويل المحفظة المعتمد: ${payNum}</p>` : ''}
+          <p class="text-[10px] text-center text-slate-400 font-semibold">شكراً لتعاملكم الراقي معنا</p>
+        </div>
+      `;
+      
+      document.getElementById('invoicePrintArea').innerHTML = invoiceHTML;
+      document.getElementById('downloadBtn').classList.remove('hidden');
+
+      const logEntry = { date: timeStr, client, item: itemsSummaryText.join('، '), price: totalSales, delivery, total: grandTotal };
+      db.logs.unshift(logEntry);
+      saveDB(db);
+
+      loadInvoiceLogs();
+    }
+
+    function downloadInvoiceImage() {
+      const element = document.getElementById('invoiceToCapture');
+      if (!element) return;
+
+      html2canvas(element, { scale: 2 }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `فاتورة-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    function loadInvoiceLogs() {
+      const db = getDB();
+      const logs = db.logs || [];
+      const tbody = document.getElementById('invoiceLogTable');
+
+      if (logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">لا توجد عمليات مسجلة سحابياً</td></tr>`;
+        updateStats(0, 0, 0, 0);
+        return;
+      }
+
+      let totalSales = 0, totalDelivery = 0, grandTotal = 0;
+      let rowsHTML = '';
+
+      logs.forEach(log => {
+        totalSales += log.price;
+        totalDelivery += log.delivery;
+        grandTotal += log.total;
+
+        rowsHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="p-2.5 font-mono text-[10px] text-slate-500">${log.date}</td>
+            <td class="p-2.5 font-semibold text-slate-800">${log.client}</td>
+            <td class="p-2.5 text-slate-600">${log.item}</td>
+            <td class="p-2.5 font-semibold text-slate-700">${log.price} ج</td>
+            <td class="p-2.5 text-slate-500">${log.delivery} ج</td>
+            <td class="p-2.5 font-bold text-slate-900">${log.total} ج</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rowsHTML;
+      updateStats(logs.length, totalSales, totalDelivery, grandTotal);
+    }
+
+    function updateStats(count, sales, delivery, grand) {
+      document.getElementById('statTotalInvoices').innerText = count;
+      document.getElementById('statTotalSales').innerText = sales + ' ج.م';
+      document.getElementById('statTotalDelivery').innerText = delivery + ' ج.م';
+      document.getElementById('statGrandTotal').innerText = grand + ' ج.م';
+    }
+
+    function clearAllLogs() {
+      if (confirm('هل أنت متأكد من تفريغ سجل العمليات السحابية؟')) {
+        let db = getDB();
+        db.logs = [];
+        saveDB(db);
+        loadInvoiceLogs();
+      }
+    }
+
+    function generateNewCodeMaster() {
+      const clientName = document.getElementById('adminClientName').value.trim() || 'عميل معتمد';
+      const clientPhone = document.getElementById('adminClientPhone').value.trim() || '01000000000';
+      const days = parseInt(document.getElementById('adminDuration').value) || 30;
+
+      const randomCode = 'FAT-' + days + 'D-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+      const expiryTime = Date.now() + (days * 24 * 60 * 60 * 1000);
+      const joinTimeStr = new Date().toLocaleString('ar-EG');
+      
+      currentCodeData = { clientName, clientPhone, code: randomCode, days };
+
+      document.getElementById('newCodeDisplay').innerText = randomCode;
+      document.getElementById('generatedCodeArea').classList.remove('hidden');
+
+      let db = getDB();
+      db.codesCount = (db.codesCount || 0) + 1;
+      
+      if (!db.licenses) db.licenses = {};
+      db.licenses[randomCode] = {
+        shopName: clientName,
+        phone: clientPhone,
+        expiry: expiryTime,
+        joinDate: joinTimeStr
+      };
+
+      let existing = db.subscribers.find(s => s.shop === clientName);
+      if (existing) {
+        existing.expiry = expiryTime;
+        existing.phone = clientPhone;
+        existing.status = 'نشط';
+        existing.code = randomCode;
+      } else {
+        db.subscribers.push({
+          id: Date.now(),
+          shop: clientName,
+          phone: clientPhone,
+          expiry: expiryTime,
+          joinDate: joinTimeStr,
+          status: 'نشط',
+          code: randomCode
+        });
+      }
+
+      saveDB(db);
+      updateAdminDashboard();
+    }
+
+    function updateAdminDashboard() {
+      const db = getDB();
+      const subscribers = db.subscribers || [];
+      
+      let activeCount = 0;
+      let tableHTML = '';
+      if (subscribers.length === 0) {
+        tableHTML = `<tr><td colspan="4" class="text-center py-3 text-slate-400">لا توجد اشتراكات مسجلة بعد</td></tr>`;
+      } else {
+        subscribers.forEach(sub => {
+          const isActive = sub.expiry > Date.now();
+          if (isActive) activeCount++;
+
+          tableHTML += `
+            <tr class="hover:bg-slate-50">
+              <td class="p-2">
+                <span class="font-bold text-slate-800 block">${sub.shop}</span>
+                <span class="text-[10px] text-slate-500 font-mono">${sub.phone} (كود: ${sub.code || 'عام'})</span>
+              </td>
+              <td class="p-2 font-mono text-[10px] text-slate-600">${sub.joinDate || 'غير محدد'}</td>
+              <td class="p-2">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
+                  ${isActive ? 'نشط' : 'منتهي'}
+                </span>
+              </td>
+              <td class="p-2 flex gap-1">
+                <button onclick="extendSubscriber(${sub.id})" class="bg-indigo-600 text-white text-[10px] px-2 py-1 rounded hover:bg-indigo-700 font-bold">+30 يوم</button>
+                <button onclick="revokeSubscriber(${sub.id})" class="bg-red-600 text-white text-[10px] px-2 py-1 rounded hover:bg-red-700 font-bold">إنهاء</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      document.getElementById('subscribersTableBody').innerHTML = tableHTML;
+      document.getElementById('adminTotalUsers').innerText = subscribers.length;
+      document.getElementById('adminActiveUsers').innerText = activeCount;
+      document.getElementById('adminEarnings').innerText = (subscribers.length * 50) + ' ج.م';
+    }
+
+    function extendSubscriber(id) {
+      let db = getDB();
+      let sub = db.subscribers.find(s => s.id === id);
+      if (sub) {
+        sub.expiry = Math.max(sub.expiry, Date.now()) + (30 * 24 * 60 * 60 * 1000);
+        sub.status = 'نشط';
+        
+        if (sub.code && db.licenses && db.licenses[sub.code]) {
+          db.licenses[sub.code].expiry = sub.expiry;
+        }
+
+        if (db.shopName === sub.shop) {
+          db.expiry = sub.expiry;
+        }
+
+        saveDB(db);
+        updateAdminDashboard();
+        checkSubscription();
+        alert(`تم تمديد اشتراك "${sub.shop}" 30 يوماً بنجاح!`);
+      }
+    }
+
+    function revokeSubscriber(id) {
+      if (confirm('هل أنت متأكد من إنهاء اشتراك هذا العميل وفقدانه الصلاحية فوراً؟')) {
+        let db = getDB();
+        let sub = db.subscribers.find(s => s.id === id);
+        if (sub) {
+          sub.expiry = Date.now() - 1000;
+          sub.status = 'منتهي';
+
+          if (sub.code && db.licenses && db.licenses[sub.code]) {
+            db.licenses[sub.code].expiry = sub.expiry;
+          }
+
+          if (db.shopName === sub.shop) {
+            db.expiry = null;
+          }
+
+          saveDB(db);
+          updateAdminDashboard();
+          checkSubscription();
+          alert('تم إنهاء اشتراك العميل بنجاح.');
+        }
+      }
+    }
+
+    function sendCodeViaWhatsApp() {
+      if (!currentCodeData) return;
+      
+      let phone = currentCodeData.clientPhone;
+      if (!phone) {
+        alert('يرجى إدخال رقم هاتف العميل أولاً لإرسال الكود!');
+        return;
+      }
+
+      if (!phone.startsWith('20')) phone = '20' + phone.replace(/^0/, '');
+
+      const msg = `مرحباً بك في منصة فاتورتي السحابية! تم اعتماد واشتراك نشاطكم: *${encodeURIComponent(currentCodeData.clientName)}*%0A%0A🔑 كود التفعيل الخاص بك (يعمل من أي جهاز): *${currentCodeData.code}*%0A⏱️ مدة الباقة: ${currentCodeData.days} يوم.%0A%0Aنتمنى لكم تجارة موفقة ومربحة!`;
+      
+      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+    }
+  </script>
+</body>
+</html>
